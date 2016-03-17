@@ -6,11 +6,15 @@ import (
 	"strings"
 )
 
+const (
+	PORT = ":5000"
+)
+
 func main() {
 	http.HandleFunc("/", SearchHandler)
 
-	fmt.Println("Listening at localhost:3000")
-	http.ListenAndServe(":3000", nil)
+	fmt.Println("Listening at localhost" + PORT)
+	http.ListenAndServe(PORT, nil)
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
