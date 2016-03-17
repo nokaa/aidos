@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -18,5 +19,11 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		<a href="https://git.nokaa.moe/nokaa/search">see the repository</a>
 		for more information.</body></html>`)
 		return
+	}
+
+	search := r.FormValue("q")
+	if strings.HasPrefix(search, "!") {
+	} else {
+		http.Redirect(w, r, "https://duckduckgo.com/?q="+search, 302)
 	}
 }
