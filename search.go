@@ -24,6 +24,22 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	search := r.FormValue("q")
 	if strings.HasPrefix(search, "!") {
 		site, search := split(search)
+
+		switch site {
+		case "w":
+			http.Redirect(w, r, "https://en.wikipedia.org/w/index.php?search="+search, 302)
+		case "wt":
+			http.Redirect(w, r, "https://en.wiktionary.org/w/index.php?search="+search, 302)
+		case "gh":
+			http.Redirect(w, r, "https://github.com/search?q="+search, 302)
+		case "g":
+			http.Redirect(w, r, "https://encrypted.google.com/search?q="+search, 302)
+		}
+		if site == "" {
+			http.Redirect(w, r, "https://duckduckgo.com/?q="+search, 302)
+		} else {
+			http.Redirect(w, r, "https://duckduckgo.com/?q=!"+site+" "+search, 302)
+		}
 	} else {
 		http.Redirect(w, r, "https://duckduckgo.com/?q="+search, 302)
 	}
