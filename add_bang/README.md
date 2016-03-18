@@ -10,4 +10,7 @@ go build
 ```
 
 Now you can simply run the `add_db` binary that is created.
+
 I recommend moving this binary to the same directory as the aidos binary. This way you will not have to move the database file that is created.
+
+You can safely modify the database while `aidos` is running.
