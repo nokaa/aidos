@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/boltdb/bolt"
 	"net/http"
 	"strings"
 )
@@ -10,11 +11,26 @@ const (
 	PORT = ":5000"
 )
 
+var db *bolt.DB
+
 func main() {
+	var err error
+	db, err = bolt.Open("aidos.db", 0600, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	http.HandleFunc("/", SearchHandler)
 
 	fmt.Println("Listening at localhost" + PORT)
-	http.ListenAndServe(PORT, nil)
+	err = http.ListenAndServe(PORT, nil)
+	if err != nil {
+		fmt.Println(err)
+		db.Close()
+		return
+	}
+	db.Close()
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,22 +43,15 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 	search := r.FormValue("q")
 	if strings.HasPrefix(search, "!") {
-		site, search := split(search)
+		bang, search := split(search)
 
-		switch site {
-		case "w":
-			http.Redirect(w, r, "https://en.wikipedia.org/w/index.php?search="+search, 302)
-		case "wt":
-			http.Redirect(w, r, "https://en.wiktionary.org/w/index.php?search="+search, 302)
-		case "gh":
-			http.Redirect(w, r, "https://github.com/search?q="+search, 302)
-		case "g":
-			http.Redirect(w, r, "https://encrypted.google.com/search?q="+search, 302)
-		}
-		if site == "" {
+		site := checkDB(bang)
+		if site == nil && bang == "" {
 			http.Redirect(w, r, "https://duckduckgo.com/?q="+search, 302)
+		} else if site == nil {
+			http.Redirect(w, r, "https://duckduckgo.com/?q=!"+bang+" "+search, 302)
 		} else {
-			http.Redirect(w, r, "https://duckduckgo.com/?q=!"+site+" "+search, 302)
+			http.Redirect(w, r, string(site)+search, 302)
 		}
 	} else {
 		http.Redirect(w, r, "https://duckduckgo.com/?q="+search, 302)
@@ -68,4 +77,24 @@ func split(search string) (string, string) {
 	}
 
 	return site, searchString
+}
+
+func checkDB(bang string) []byte {
+	var valid []byte
+	err := db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("bangs"))
+		if bucket == nil {
+			return fmt.Errorf("Bucket bangs not found!")
+		}
+
+		valid = bucket.Get([]byte(bang))
+
+		return nil
+	})
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	return valid
 }
