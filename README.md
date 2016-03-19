@@ -1,4 +1,4 @@
-# Aidos
+# Aidos [![Build Status](https://travis-ci.org/nokaa/aidos.svg?branch=master)](https://travis-ci.org/nokaa/aidos)
 A server that makes it easy to search other websites. This is similar duckduckgo's bangs.
 
 Bangs are stored in a file database `aidos.db` which must be in the same directory that you run `aidos` from.
