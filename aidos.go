@@ -1,3 +1,10 @@
+/* Copyright (C)  2016 nokaa <nokaa@cock.li>
+ * This software is licensed under the terms of the
+ * GNU Affero General Public License. You should have
+ * received a copy of this license with this software.
+ * The license may also be found at https://gnu.org/licenses/agpl.txt
+ */
+
 package main
 
 import (
@@ -34,13 +41,6 @@ func main() {
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		fmt.Fprintf(w, `<html><body>This server is POST only. Please
-		<a href="https://git.nokaa.moe/nokaa/search">see the repository</a>
-		for more information.</body></html>`)
-		return
-	}
-
 	search := r.FormValue("q")
 	if strings.HasPrefix(search, "!") {
 		bang, search := split(search)
